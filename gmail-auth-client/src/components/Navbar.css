@@ -1,0 +1,155 @@
+/* Navbar Container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #37373ac3;
+  font-family: Arial, sans-serif;
+  padding: 10px 25px;
+  background-color: white;
+}
+
+/* Navbar Links */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  display: inline-block;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: #8b54af;
+  font-size: 18px;
+  font-weight: normal;
+  transition: color 0.3s, border-bottom 0.3s;
+  font-family: Bauhaus Std Medium;
+}
+
+.navbar-links a.active {
+  color: #211f23;
+  border-bottom: 2px solid #8f57fe;
+}
+
+.navbar-links a:hover {
+  color: #29292b;
+}
+
+/* Navbar Actions */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dark-toggle {
+  background: none;
+  border: 1px solid #888;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: inherit;
+  transition: background-color 0.3s ease;
+}
+
+.dark-toggle:hover {
+  background-color: #eee;
+}
+
+.btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #8f57fe;
+  color: white;
+}
+
+.btn.google-login {
+  background-color: white;
+  border: 1px solid #dadce0;
+  color: #000;
+}
+
+.btn.logout {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+}
+
+body.dark-mode .navbar {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #555;
+}
+
+body.dark-mode .navbar-links a {
+  color: #c0a6df;
+}
+
+body.dark-mode .navbar-links a.active {
+  color: #ffffff;
+  border-bottom-color: #c084fc;
+}
+
+body.dark-mode .navbar-links a:hover {
+  color: #eeeeee;
+}
+
+body.dark-mode .dark-toggle {
+  border-color: #bbb;
+  color: #e0e0e0;
+}
+
+body.dark-mode .dark-toggle:hover {
+  background-color: #2a2a2a;
+}
+
+body.dark-mode .btn.logout {
+  background-color: #ff6b6b;
+}
+
+body.dark-mode .btn.google-login {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #aaa;
+}
+
+/* Mobile Responsiveness */
+@media only screen and (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 15px;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .navbar-links li {
+    margin-bottom: 10px;
+  }
+
+  .navbar-actions {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dark-toggle,
+  .btn {
+    font-size: 12px;
+  }
+}
