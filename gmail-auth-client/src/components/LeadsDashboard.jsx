@@ -33,15 +33,15 @@ export default function LeadsDashboard() {
   const [newLeads, setNewLeads] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8089/leads") // Replace with your API URL
+    axios.get("http://localhost:8083/leads") // Replace with your API URL
       .then((res) => {
-        const fetchedLeads = res.data;
+        const fetchedLeads = res.data.leads;
 
         // Sort leads by date in descending order to get the latest ones
         const sortedLeads = [...fetchedLeads].sort((a, b) => new Date(b.date) - new Date(a.date));
         
         setLeads(sortedLeads);
-        setNewLeads(sortedLeads.slice(0, 3)); // Get the top 3 new leads
+        setNewLeads(sortedLeads); // Get the top 3 new leads
       })
       .catch((err) => {
         console.error("Failed to fetch leads:", err);
@@ -197,7 +197,7 @@ export default function LeadsDashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            {/* <Card>
               <CardContent>
                 <h3>New Leads</h3>
                 <Table>
@@ -219,7 +219,37 @@ export default function LeadsDashboard() {
                   </TableBody>
                 </Table>
               </CardContent>
-            </Card>
+            </Card> */}
+
+<Card>
+  <CardContent>
+    <h3>New Leads</h3>
+    <div className="table-container" style={{
+      maxHeight: newLeads.length > 5 ? '350px' : 'auto',
+      overflowY: newLeads.length > 5 ? 'auto' : 'visible'
+    }}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Event Date</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {newLeads.map((lead, i) => (
+            <TableRow key={i}>
+              <TableCell>{lead.name}</TableCell>
+              <TableCell>{lead.category}</TableCell>
+              <TableCell>{new Date(lead.date).toLocaleDateString()}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  </CardContent>
+</Card>
+
           </div>
         </>
       )}

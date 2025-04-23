@@ -23,9 +23,9 @@ export default function LeadsDatabase() {
   const datePickerRef = useRef(null);
 
   useEffect(() => {
-    axios.get("http://localhost:8089/leads")
+    axios.get("http://localhost:8083/leads")
       .then((res) => {
-        const fetchedLeads = res.data;
+        const fetchedLeads = res.data.leads;
         setLeads(fetchedLeads);
         
         // Initialize the selectedDate state with existing dates
@@ -69,7 +69,7 @@ export default function LeadsDatabase() {
     setVisibleId(null);
     
     // Update the backend
-    axios.put(`http://localhost:8089/leads/${id}/date`, { date: date.toISOString() })
+    axios.put(`http://localhost:8083/leads/${id}/date`, { date: date.toISOString() })
       .then(() => {
         // Update the leads array in state
         setLeads(prevLeads => 
@@ -90,7 +90,7 @@ export default function LeadsDatabase() {
   const handleStatusChange = (e, leadId) => {
     const updatedStatus = e.target.value;
     // Update the database with the new status
-    axios.put(`http://localhost:8089/leads/${leadId}/status`, { status: updatedStatus })
+    axios.put(`http://localhost:8083/leads/${leadId}/status`, { status: updatedStatus })
       .then(() => {
         console.log('Status updated successfully');
         // Update the leads array with the new status
@@ -107,7 +107,7 @@ export default function LeadsDatabase() {
 
   const handleDelete = (leadId) => {
     // Delete the lead from the database
-    axios.delete(`http://localhost:8089/leads/${leadId}`)
+    axios.delete(`http://localhost:8083/leads/${leadId}`)
       .then(() => {
         setLeads((prevLeads) => prevLeads.filter(lead => lead._id !== leadId));
         console.log('Lead deleted successfully');

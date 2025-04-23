@@ -124,6 +124,184 @@ body.dark-mode .btn.google-login {
   border: 1px solid #aaa;
 }
 
+/* Add this to your Navbar.css file */
+
+.domain-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.domain-popup {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.domain-popup h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.domain-popup p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.domain-popup input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.domain-popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn.primary {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn.secondary {
+  background-color: transparent;
+  color: #4285f4;
+  border: 1px solid #4285f4;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+body.dark-mode .domain-popup {
+  background-color: #222;
+  color: #eee;
+}
+
+body.dark-mode .domain-popup h3,
+body.dark-mode .domain-popup p {
+  color: #eee;
+}
+
+body.dark-mode .domain-popup input {
+  background-color: #333;
+  border-color: #444;
+  color: #eee;
+}
+
+body.dark-mode .btn.secondary {
+  border-color: #ccc;
+  color: #ccc;
+}
+
+.domains-dropdown {
+  position: absolute;
+  top: 60px; /* Adjust depending on navbar height */
+  right: 10px; /* Adjust depending on where you want it */
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.domains-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Optional: make domain items look cleaner */
+.domains-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.domains-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.domains-list li:last-child {
+  border-bottom: none;
+}
+
+.domain-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.manage-domains-wrapper {
+  position: relative;
+}
+
+.domains-dropdown {
+  position: absolute;
+  top: 100%; /* Drop down directly under the link */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.domains-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* optional: better domain count badge */
+.domain-count {
+  background: #ff4d4f;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+
 /* Mobile Responsiveness */
 @media only screen and (max-width: 768px) {
   .navbar {
