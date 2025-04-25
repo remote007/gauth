@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { gapi } from "gapi-script";
 import axios from "axios";
 import "./Navbar.css";
@@ -171,8 +171,13 @@ const Navbar = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [actionStatus, setActionStatus] = useState({ message: "", type: "" });
+  
+  // WebSocket reference
+  const wsRef = useRef(null);
 
+  // Initialize Google API and WebSocket
   useEffect(() => {
+    // Initialize Google API
     gapi.load("client:auth2", () => {
       gapi.client
         .init({
@@ -181,20 +186,88 @@ const Navbar = () => {
         })
         .then(() => {
           const auth = gapi.auth2.getAuthInstance();
-          setIsSignedIn(auth.isSignedIn.get());
+          const isUserSignedIn = auth.isSignedIn.get();
+          setIsSignedIn(isUserSignedIn);
           setIsReady(true);
   
-          if (auth.isSignedIn.get()) {
+          if (isUserSignedIn) {
             const email = auth.currentUser.get().getBasicProfile().getEmail();
             setUserEmail(email);
             loadUserDomains(email);
+            
+            // Initialize WebSocket connection for logged-in user
+            initializeWebSocket(email);
           }
         })
         .catch((error) => {
           console.error("GAPI init error:", error);
         });
     });
-  }, []);  
+    
+    // Cleanup WebSocket on component unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
+  
+  // Initialize WebSocket connection
+  const initializeWebSocket = (email) => {
+    // Close existing connection if any
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+    
+    // Create new WebSocket connection
+    const ws = new WebSocket(`ws://${window.location.hostname}:8083`);
+    
+    ws.onopen = () => {
+      console.log('WebSocket connection established');
+      // Send login message once connected
+      ws.send(JSON.stringify({
+        type: 'login',
+        email: email
+      }));
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('WebSocket message received:', data);
+        
+        // Handle different message types
+        switch (data.type) {
+          case 'login_success':
+            showStatusMessage('Connected to real-time updates', 'success');
+            break;
+            
+          case 'email_scrape_trigger':
+            // Handle email scraping trigger
+            showStatusMessage('Starting email scraping...', 'info');
+            fetchEmailsForDomains(data.domains);
+            break;
+            
+          default:
+            console.log('Unknown message type:', data.type);
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    };
+    
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+    
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      showStatusMessage('Connection error', 'error');
+    };
+    
+    // Store WebSocket reference
+    wsRef.current = ws;
+  };
 
   const showStatusMessage = (message, type = "info") => {
     setActionStatus({ message, type });
@@ -228,6 +301,12 @@ const Navbar = () => {
       const email = authInstance.currentUser.get().getBasicProfile().getEmail();
       setUserEmail(email);
       setIsSignedIn(true);
+      await axios.post(`${API_BASE_URL}/user/login`, {
+        email: email
+      });
+      
+      // Initialize WebSocket connection
+      initializeWebSocket(email);
       
       // Load user's domains from server
       await loadUserDomains(email);
@@ -288,16 +367,35 @@ const Navbar = () => {
         email.subject.toLowerCase().includes("lead")
       );
 
+      // Report the scraping results via WebSocket
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: 'scraping_results',
+          email: userEmail,
+          totalEmails: messages.length,
+          matchingEmails: filtered.length
+        }));
+      }
+
       const response = await axios.post(`${API_BASE_URL}/leads`, { emails: filtered });
       
       if (response.data.success) {
-        showStatusMessage(`Found ${response.data.count} leads`, "success");
+        showStatusMessage(`Found ${filtered.length} leads`, "success");
       } else {
         showStatusMessage("Failed to process emails", "error");
       }
     } catch (error) {
       console.error("Error during Gmail fetch or axios post:", error);
       showStatusMessage("Error processing emails", "error");
+      
+      // Report error via WebSocket
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: 'scraping_error',
+          email: userEmail,
+          error: error.message
+        }));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -397,6 +495,24 @@ const Navbar = () => {
       setUserDomains([]);
       setUserEmail("");
       setShowDomainsList(false);
+      axios.post(`${API_BASE_URL}/user/logout`, {
+        email: userEmail
+      });
+      
+      // Notify server about logout via WebSocket
+      if(wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: 'logout',
+          email: userEmail
+        }));
+      }
+      
+      // Close WebSocket connection
+      if(wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+      
       showStatusMessage("Signed out successfully", "info");
     });
   };
@@ -408,7 +524,7 @@ const Navbar = () => {
 
   const toggleDomainsList = () => {
     setShowDomainsList(prev => !prev);
-  };  
+  };
 
   return (
     <div className="navbar">
@@ -455,7 +571,7 @@ const Navbar = () => {
                     Manage Domains
                 </a>
 
-                {/* Attach dropdown here! */}
+                {/* Domains dropdown */}
                 <div className={`domains-dropdown ${showDomainsList ? "open" : ""}`}>
                     {userDomains.length > 0 && (
                     <DomainsList
@@ -467,7 +583,6 @@ const Navbar = () => {
                     )}
                 </div>
             </li>
-
           </>
         )}
       </ul>
@@ -521,7 +636,6 @@ const Navbar = () => {
           userEmail={userEmail}
         />
       )}
-
     </div>
   );
 };

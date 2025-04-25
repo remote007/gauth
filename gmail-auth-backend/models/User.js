@@ -9,17 +9,12 @@ const userSchema = new Schema({
     trim: true,
     lowercase: true
   },
-  name: {
-    type: String,
-    trim: true
-  },
-  picture: {
-    type: String
-  },
+  isLoggedIn: { type: Boolean, default: false },
   lastLogin: {
     type: Date,
     default: Date.now
   }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
